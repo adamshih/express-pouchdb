@@ -170,6 +170,44 @@ app.del('/:db', function (req, res, next) {
   });
 });
 
+// Query design document rewrite handler; Not implemented.
+app.get('/:db/_design/:id/_rewrite/:path?', function (req, res, next) {
+  if (req.params.path === undefined) {
+    req.params.path = '';
+  }
+  var query = '_design/' + req.params.id;
+  req.db.get(query, req.query, function (err, doc) {
+    if (err) return res.send(404, err);
+    if (!('rewrites' in doc)) {
+      console.log('TODO: no rewrites in doc error');
+      //return res.send(404, 'no rewrites in doc');
+    }
+    console.log(doc.rewrites);
+    doc.rewrites.forEach(function search(rule) {
+      if (search.stop) {
+        console.log('earlystop');
+        return;
+      }
+      console.log('rule');
+      console.log(rule.from);
+      console.log('pathz');
+      console.log(req.params.path);
+      if (rule.from === req.params.path) {
+        console.log('rule true');
+        search.stop = true;
+        console.log(req.url);
+        // non express redirect
+        //req.originalUrl = (req.url + '/' + rule.to);
+        console.log(req.originalUrl);
+        next('route');
+        res.redirect(req.url + '/' + rule.to);
+      }
+    });
+    //res.send(200, doc);
+  });
+  //res.send(501);
+});
+
 // Get database information
 app.get('/:db', function (req, res, next) {
   req.db.info(function (err, info) {
@@ -313,10 +351,6 @@ app.get('/:db/_design/:id/_update(*)', function (req, res, next) {
   res.send(501);
 });
 
-// Query design document rewrite handler; Not implemented.
-app.get('/:db/_design/:id/_rewrite(*)', function (req, res, next) {
-  res.send(501);
-});
 
 // Put a document attachment
 app.put('/:db/:id/:attachment(*)', function (req, res, next) {

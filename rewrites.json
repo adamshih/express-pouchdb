@@ -1,0 +1,16 @@
+{
+    "rewrites": [
+        {
+            "from": "gotodb",
+            "to": "../../../.."
+        },
+        {
+            "from": "",
+            "to": "index.html"
+        },
+        {
+            "from": "ls",
+            "to": "../../../../_all_docs"
+        }
+    ]
+}
